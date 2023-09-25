@@ -1,4 +1,4 @@
-module github.com/masterzen/winrm
+module github.com/siemens-cdc/winrm
 
 go 1.14
 

@@ -10,7 +10,7 @@ import (
 	"github.com/ChrisTrenkamp/goxpath"
 	"github.com/ChrisTrenkamp/goxpath/tree"
 	"github.com/ChrisTrenkamp/goxpath/tree/xmltree"
-	"github.com/masterzen/winrm/soap"
+	"github.com/siemens-cdc/winrm/soap"
 )
 
 func first(node tree.Node, xpath string) (string, error) {
@@ -44,7 +44,7 @@ func xPath(node tree.Node, xpath string) (tree.NodeSet, error) {
 	return nodes, nil
 }
 
-//ParseOpenShellResponse ParseOpenShellResponse
+// ParseOpenShellResponse ParseOpenShellResponse
 func ParseOpenShellResponse(response string) (string, error) {
 	doc, err := xmltree.ParseXML(strings.NewReader(response))
 	if err != nil {
@@ -53,7 +53,7 @@ func ParseOpenShellResponse(response string) (string, error) {
 	return first(doc, "//w:Selector[@Name='ShellId']")
 }
 
-//ParseExecuteCommandResponse ParseExecuteCommandResponse
+// ParseExecuteCommandResponse ParseExecuteCommandResponse
 func ParseExecuteCommandResponse(response string) (string, error) {
 	doc, err := xmltree.ParseXML(strings.NewReader(response))
 	if err != nil {
@@ -62,7 +62,7 @@ func ParseExecuteCommandResponse(response string) (string, error) {
 	return first(doc, "//rsp:CommandId")
 }
 
-//ParseSlurpOutputErrResponse ParseSlurpOutputErrResponse
+// ParseSlurpOutputErrResponse ParseSlurpOutputErrResponse
 func ParseSlurpOutputErrResponse(response string, stdout, stderr io.Writer) (bool, int, error) {
 	var (
 		finished bool
@@ -97,7 +97,7 @@ func ParseSlurpOutputErrResponse(response string, stdout, stderr io.Writer) (boo
 	return finished, exitCode, err
 }
 
-//ParseSlurpOutputResponse ParseSlurpOutputResponse
+// ParseSlurpOutputResponse ParseSlurpOutputResponse
 func ParseSlurpOutputResponse(response string, stream io.Writer, streamType string) (bool, int, error) {
 	var (
 		finished bool

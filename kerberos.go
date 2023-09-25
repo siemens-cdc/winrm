@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/masterzen/winrm/soap"
+	"github.com/siemens-cdc/winrm/soap"
 
 	"github.com/jcmturner/gokrb5/v8/client"
 	"github.com/jcmturner/gokrb5/v8/config"
