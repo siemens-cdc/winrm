@@ -12,14 +12,14 @@ import (
 	"github.com/masterzen/winrm/soap"
 )
 
-// ClientAuthRequest ClientAuthRequest
-type ClientAuthRequest struct {
+// ClientAuthRequestWin11 ClientAuthRequestWin11
+type ClientAuthRequestWin11 struct {
 	transport http.RoundTripper
 	dial      func(network, addr string) (net.Conn, error)
 }
 
 // Transport Transport
-func (c *ClientAuthRequest) Transport(endpoint *Endpoint) error {
+func (c *ClientAuthRequestWin11) Transport(endpoint *Endpoint) error {
 	cert, err := tls.X509KeyPair(endpoint.Cert, endpoint.Key)
 	if err != nil {
 		return err
@@ -33,8 +33,8 @@ func (c *ClientAuthRequest) Transport(endpoint *Endpoint) error {
 	if c.dial != nil {
 		dial = c.dial
 	}
-	//nolint:gosec
 
+	//nolint:gosec
 	transport := &http.Transport{
 		Proxy: http.ProxyFromEnvironment,
 		TLSClientConfig: &tls.Config{
@@ -43,28 +43,9 @@ func (c *ClientAuthRequest) Transport(endpoint *Endpoint) error {
 			Certificates:       []tls.Certificate{cert},
 			MaxVersion:         tls.VersionTLS12,
 			MinVersion:         tls.VersionTLS10,
-			//MinVersion: tls.VersionTLS12,
-			ClientAuth: tls.RequireAndVerifyClientCert,
-			//CipherSuites: []uint16{
-			//	tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-			//	tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-			//	tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-			//	tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-			//	tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
-			//	tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
-			//},
-			//CurvePreferences: []tls.CurveID{
-			//	tls.X25519,
-			//	tls.CurveP256,
-			//	tls.CurveP384,
-			//	tls.CurveP521,
-			//},
-			//SignatureSchemes: []tls.SignatureScheme{
-			//	tls.ECDSAWithP256AndSHA256,
-			//	tls.PSSWithSHA256,
-			//
-			//
-			//},
+			ClientAuth:         tls.RequireAndVerifyClientCert,
+			//0xc02b, 0xc02f, 0xc02c, 0xc030, 0xcca9, 0xcca8, 0xc009, 0xc013, 0xc00a, 0xc014, 0x009c, 0x009d, 0x002f, 0x0035, 0xc012, 0x000a, 0x1301, 0x1302, 0x1303
+			//CipherSuites: []uint16{0x002f, 0x0035},
 		},
 		Dial:                  dial,
 		ResponseHeaderTimeout: endpoint.Timeout,
@@ -84,8 +65,8 @@ func (c *ClientAuthRequest) Transport(endpoint *Endpoint) error {
 	return nil
 }
 
-// parse func reads the response body and return it as a string
-func parse(response *http.Response) (string, error) {
+// parseWin11 func reads the response body and return it as a string
+func parseWin11(response *http.Response) (string, error) {
 	// if we received the content we expected
 	if strings.Contains(response.Header.Get("Content-Type"), "application/soap+xml") {
 		body, err := io.ReadAll(response.Body)
@@ -107,12 +88,12 @@ func parse(response *http.Response) (string, error) {
 }
 
 // Post Post
-func (c ClientAuthRequest) Post(client *Client, request *soap.SoapMessage) (string, error) {
+func (c ClientAuthRequestWin11) Post(client *Client, request *soap.SoapMessage) (string, error) {
 	httpClient := &http.Client{Transport: c.transport}
 
 	req, err := http.NewRequest("POST", client.url, strings.NewReader(request.String()))
 	if err != nil {
-		return "", fmt.Errorf("impossible to create http request %w", err)
+		return "", fmt.Errorf("impossible to create Http request %w", err)
 	}
 
 	req.Header.Set("Content-Type", soapXML+";charset=UTF-8")
@@ -123,25 +104,25 @@ func (c ClientAuthRequest) Post(client *Client, request *soap.SoapMessage) (stri
 		return "", fmt.Errorf("unknown error %w", err)
 	}
 
-	body, err := parse(resp)
+	body, err := parseWin11(resp)
 	if err != nil {
-		return "", fmt.Errorf("http response error: %d - %w", resp.StatusCode, err)
+		return "", fmt.Errorf("Http response error: %d - %w", resp.StatusCode, err)
 	}
 
-	// if we have different 200 http status code
+	// if we have different 200 Http status code
 	// we must replace the error
 	defer func() {
 		if resp.StatusCode != 200 {
-			body, err = "", fmt.Errorf("http error %d: %s", resp.StatusCode, body)
+			body, err = "", fmt.Errorf("Http error %d: %s", resp.StatusCode, body)
 		}
 	}()
 
 	return body, err
 }
 
-// NewClientAuthRequestWithDial NewClientAuthRequestWithDial
-func NewClientAuthRequestWithDial(dial func(network, addr string) (net.Conn, error)) *ClientAuthRequest {
-	return &ClientAuthRequest{
+// NewClientAuthRequestWithDialWin11 NewClientAuthRequestWithDialWin11
+func NewClientAuthRequestWithDialWin11(dial func(network, addr string) (net.Conn, error)) *ClientAuthRequestWin11 {
+	return &ClientAuthRequestWin11{
 		dial: dial,
 	}
 }

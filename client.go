@@ -34,12 +34,20 @@ type Transporter interface {
 // NewClient will create a new remote client on url, connecting with user and password
 // This function doesn't connect (connection happens only when CreateShell is called)
 func NewClient(endpoint *Endpoint, user, password string) (*Client, error) {
-	return NewClientWithParameters(endpoint, user, password, DefaultParameters)
+	return NewClientWithParameters(endpoint, user, password, DefaultParameters, &ClientAuthRequest{dial: DefaultParameters.Dial})
+}
+
+func NewClientWithoutAuth(endpoint *Endpoint, user, password string) (*Client, error) {
+	return NewClientWithParameters(endpoint, user, password, DefaultParameters, &clientRequest{dial: DefaultParameters.Dial})
+}
+
+func NewWin11Client(endpoint *Endpoint, user, password string) (*Client, error) {
+	return NewClientWithParameters(endpoint, user, password, DefaultParameters, &ClientAuthRequestWin11{dial: DefaultParameters.Dial})
 }
 
 // NewClientWithParameters will create a new remote client on url, connecting with user and password
 // This function doesn't connect (connection happens only when CreateShell is called)
-func NewClientWithParameters(endpoint *Endpoint, user, password string, params *Parameters) (*Client, error) {
+func NewClientWithParameters(endpoint *Endpoint, user, password string, params *Parameters, transporter Transporter) (*Client, error) {
 	// alloc a new client
 	client := &Client{
 		Parameters: *params,
@@ -48,7 +56,9 @@ func NewClientWithParameters(endpoint *Endpoint, user, password string, params *
 		url:        endpoint.url(),
 		useHTTPS:   endpoint.HTTPS,
 		// default transport
-		http: &clientRequest{dial: params.Dial},
+		//http: &clientRequest{dial: params.dial},
+		//http: &ClientAuthRequest{dial: params.dial},
+		http: transporter,
 	}
 
 	// switch to other transport if provided
