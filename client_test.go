@@ -253,7 +253,8 @@ func (s *WinRMSuite) TestReplaceDial(c *C) {
 	}
 
 	endpoint := NewEndpoint(host, port, false, false, nil, nil, nil, 0)
-	client, err := NewClientWithParameters(endpoint, "Administrator", "v3r1S3cre7", params, nil)
+	client, err := NewClientWithParameters(endpoint, "Administrator", "v3r1S3cre7", params,
+		nil)
 	c.Assert(err, IsNil)
 	var stdout, stderr bytes.Buffer
 	_, err = client.Run("ipconfig /all", &stdout, &stderr)
