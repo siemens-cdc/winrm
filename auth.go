@@ -128,6 +128,7 @@ func (c ClientAuthRequest) Post(client *Client, request *soap.SoapMessage) (stri
 		return "", fmt.Errorf("http response error: %d - %w", resp.StatusCode, err)
 	}
 
+	fmt.Printf("http response soap message : %s", body)
 	// if we have different 200 http status code
 	// we must replace the error
 	defer func() {
