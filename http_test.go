@@ -49,7 +49,7 @@ func (s *WinRMSuite) TestHttpRequest(c *C) {
 	c.Assert(err, IsNil)
 	defer ts.Close()
 	endpoint := NewEndpoint(host, port, false, false, nil, nil, nil, 0)
-	client, err := NewClient(endpoint, "test", "test")
+	client, err := NewClient(endpoint, "test", "test", 0, 0, nil)
 	c.Assert(err, IsNil)
 	shell, err := client.CreateShell()
 	c.Assert(err, IsNil)
@@ -76,7 +76,7 @@ func (s *WinRMSuite) TestHttpViaCustomDialerRequest(c *C) {
 	endpoint := NewEndpoint(host, port, false, false, nil, nil, nil, 0)
 	params := DefaultParameters
 	params.TransportDecorator = func() Transporter { return NewClientWithDial(dial) }
-	client, err := NewClientWithParameters(endpoint, "test", "test", params)
+	client, err := NewClientWithParameters(endpoint, "test", "test", params, nil, 0, 0, nil)
 	c.Assert(err, IsNil)
 	_, err = client.CreateShell()
 	c.Assert(err, IsNil)

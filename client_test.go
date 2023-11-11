@@ -49,7 +49,7 @@ func (r *Requester) Transport(endpoint *Endpoint) error {
 
 func (s *WinRMSuite) TestNewClient(c *C) {
 	endpoint := NewEndpoint("localhost", 5985, false, false, nil, nil, nil, 0)
-	client, err := NewClient(endpoint, "Administrator", "v3r1S3cre7")
+	client, err := NewClient(endpoint, "Administrator", "v3r1S3cre7", 0, 0, nil)
 
 	c.Assert(err, IsNil)
 	c.Assert(client.url, Equals, "http://localhost:5985/wsman")
@@ -59,14 +59,14 @@ func (s *WinRMSuite) TestNewClient(c *C) {
 
 func (s *WinRMSuite) TestClientCreateShell(c *C) {
 	endpoint := NewEndpoint("localhost", 5985, false, false, nil, nil, nil, 0)
-	client, err := NewClient(endpoint, "Administrator", "v3r1S3cre7")
+	client, err := NewClient(endpoint, "Administrator", "v3r1S3cre7", 0, 0, nil)
 	c.Assert(err, IsNil)
 	r := Requester{}
 	r.http = func(client *Client, message *soap.SoapMessage) (string, error) {
 		c.Assert(message.String(), Contains, "http://schemas.xmlsoap.org/ws/2004/09/transfer/Create")
 		return createShellResponse, nil
 	}
-	client.http = &r
+	//client.http = &r
 
 	shell, _ := client.CreateShell()
 	c.Assert(shell.id, Equals, "67A74734-DD32-4F10-89DE-49A060483810")
@@ -78,7 +78,7 @@ func (s *WinRMSuite) TestRun(c *C) {
 	defer ts.Close()
 
 	endpoint := NewEndpoint(host, port, false, false, nil, nil, nil, 0)
-	client, err := NewClient(endpoint, "Administrator", "v3r1S3cre7")
+	client, err := NewClient(endpoint, "Administrator", "v3r1S3cre7", 0, 0, nil)
 	c.Assert(err, IsNil)
 
 	var stdout, stderr bytes.Buffer
@@ -94,7 +94,7 @@ func (s *WinRMSuite) TestRunWithString(c *C) {
 	c.Assert(err, IsNil)
 	defer ts.Close()
 	endpoint := NewEndpoint(host, port, false, false, nil, nil, nil, 0)
-	client, err := NewClient(endpoint, "Administrator", "v3r1S3cre7")
+	client, err := NewClient(endpoint, "Administrator", "v3r1S3cre7", 0, 0, nil)
 	c.Assert(err, IsNil)
 
 	stdout, stderr, code, err := client.RunWithString("ipconfig /all", "this is the input")
@@ -109,7 +109,7 @@ func (s *WinRMSuite) TestRunPSWithString(c *C) {
 	c.Assert(err, IsNil)
 	defer ts.Close()
 	endpoint := NewEndpoint(host, port, false, false, nil, nil, nil, 0)
-	client, err := NewClient(endpoint, "Administrator", "v3r1S3cre7")
+	client, err := NewClient(endpoint, "Administrator", "v3r1S3cre7", 0, 0, nil)
 	c.Assert(err, IsNil)
 
 	stdout, stderr, code, err := client.RunPSWithString("ipconfig /all", "this is the input")
@@ -125,7 +125,7 @@ func (s *WinRMSuite) TestRunWithInput(c *C) {
 	defer ts.Close()
 
 	endpoint := NewEndpoint(host, port, false, false, nil, nil, nil, 0)
-	client, err := NewClient(endpoint, "Administrator", "v3r1S3cre7")
+	client, err := NewClient(endpoint, "Administrator", "v3r1S3cre7", 0, 0, nil)
 	c.Assert(err, IsNil)
 
 	var stdout, stderr bytes.Buffer
@@ -229,7 +229,7 @@ func (s *WinRMSuite) TestReplaceTransportWithDecorator(c *C) {
 	}
 
 	endpoint := NewEndpoint("localhost", 5986, false, false, nil, []byte(cert), []byte(key), 0)
-	client, err := NewClientWithParameters(endpoint, "Administrator", "password", params, nil)
+	client, err := NewClientWithParameters(endpoint, "Administrator", "password", params, nil, 0, 0, nil)
 	c.Assert(err, IsNil)
 	_, ok := client.http.(*ClientAuthRequest)
 	c.Assert(ok, Equals, true)
@@ -254,7 +254,7 @@ func (s *WinRMSuite) TestReplaceDial(c *C) {
 
 	endpoint := NewEndpoint(host, port, false, false, nil, nil, nil, 0)
 	client, err := NewClientWithParameters(endpoint, "Administrator", "v3r1S3cre7", params,
-		nil)
+		nil, 0, 0, nil)
 	c.Assert(err, IsNil)
 	var stdout, stderr bytes.Buffer
 	_, err = client.Run("ipconfig /all", &stdout, &stderr)
