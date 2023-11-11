@@ -59,7 +59,7 @@ func NewClientKerberos(settings *Settings) *ClientKerberos {
 }
 
 func (c *ClientKerberos) Transport(endpoint *Endpoint) error {
-	return c.clientRequest.Transport(endpoint)
+	return c.clientRequest.Transport(endpoint, 0, 0, nil)
 }
 
 func (c *ClientKerberos) Post(clt *Client, request *soap.SoapMessage) (string, error) {
