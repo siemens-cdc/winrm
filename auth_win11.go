@@ -19,7 +19,7 @@ type ClientAuthRequestWin11 struct {
 }
 
 // Transport Transport
-func (c *ClientAuthRequestWin11) Transport(endpoint *Endpoint) error {
+func (c *ClientAuthRequestWin11) Transport(endpoint *Endpoint, minVersion uint16, maxVersion uint16, cipherSuites []uint16) error {
 	cert, err := tls.X509KeyPair(endpoint.Cert, endpoint.Key)
 	if err != nil {
 		return err
@@ -41,11 +41,11 @@ func (c *ClientAuthRequestWin11) Transport(endpoint *Endpoint) error {
 			Renegotiation:      tls.RenegotiateOnceAsClient,
 			InsecureSkipVerify: endpoint.Insecure,
 			Certificates:       []tls.Certificate{cert},
-			MaxVersion:         tls.VersionTLS12,
-			MinVersion:         tls.VersionTLS10,
+			MaxVersion:         maxVersion,
+			MinVersion:         minVersion,
 			ClientAuth:         tls.RequireAndVerifyClientCert,
 			//0xc02b, 0xc02f, 0xc02c, 0xc030, 0xcca9, 0xcca8, 0xc009, 0xc013, 0xc00a, 0xc014, 0x009c, 0x009d, 0x002f, 0x0035, 0xc012, 0x000a, 0x1301, 0x1302, 0x1303
-			//CipherSuites: []uint16{0x002f, 0x0035},
+			CipherSuites: cipherSuites,
 		},
 		Dial:                  dial,
 		ResponseHeaderTimeout: endpoint.Timeout,

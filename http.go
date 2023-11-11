@@ -43,7 +43,7 @@ type clientRequest struct {
 	proxyfunc func(req *http.Request) (*url.URL, error)
 }
 
-func (c *clientRequest) Transport(endpoint *Endpoint) error {
+func (c *clientRequest) Transport(endpoint *Endpoint, minVersion uint16, maxVersion uint16, cipherSuites []uint16) error {
 	dial := (&net.Dialer{
 		Timeout:   30 * time.Second,
 		KeepAlive: 30 * time.Second,

@@ -20,8 +20,7 @@ func defaultHeaders(message *soap.SoapMessage, url string, params *Parameters) *
 		MaxEnvelopeSize(params.EnvelopeSize).
 		Id(genUUID()).
 		Locale(params.Locale).
-		Timeout(params.Timeout).
-		AddOption(soap.NewHeaderOption("IdleTimeout", "PT0S"))
+		Timeout(params.Timeout)
 }
 
 // NewOpenShellRequest makes a new soap request

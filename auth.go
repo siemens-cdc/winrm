@@ -19,7 +19,7 @@ type ClientAuthRequest struct {
 }
 
 // Transport Transport
-func (c *ClientAuthRequest) Transport(endpoint *Endpoint) error {
+func (c *ClientAuthRequest) Transport(endpoint *Endpoint, minVersion uint16, maxVersion uint16, cipherSuites []uint16) error {
 	cert, err := tls.X509KeyPair(endpoint.Cert, endpoint.Key)
 	if err != nil {
 		return err
@@ -41,30 +41,11 @@ func (c *ClientAuthRequest) Transport(endpoint *Endpoint) error {
 			Renegotiation:      tls.RenegotiateOnceAsClient,
 			InsecureSkipVerify: endpoint.Insecure,
 			Certificates:       []tls.Certificate{cert},
-			MaxVersion:         tls.VersionTLS12,
-			MinVersion:         tls.VersionTLS10,
+			MaxVersion:         maxVersion,
+			MinVersion:         minVersion,
 			//MinVersion: tls.VersionTLS12,
-			ClientAuth: tls.RequireAndVerifyClientCert,
-			//CipherSuites: []uint16{
-			//	tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-			//	tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-			//	tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-			//	tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-			//	tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
-			//	tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
-			//},
-			//CurvePreferences: []tls.CurveID{
-			//	tls.X25519,
-			//	tls.CurveP256,
-			//	tls.CurveP384,
-			//	tls.CurveP521,
-			//},
-			//SignatureSchemes: []tls.SignatureScheme{
-			//	tls.ECDSAWithP256AndSHA256,
-			//	tls.PSSWithSHA256,
-			//
-			//
-			//},
+			ClientAuth:   tls.RequireAndVerifyClientCert,
+			CipherSuites: cipherSuites,
 		},
 		Dial:                  dial,
 		ResponseHeaderTimeout: endpoint.Timeout,
@@ -128,7 +109,6 @@ func (c ClientAuthRequest) Post(client *Client, request *soap.SoapMessage) (stri
 		return "", fmt.Errorf("http response error: %d - %w", resp.StatusCode, err)
 	}
 
-	fmt.Printf("http response soap message : %s", body)
 	// if we have different 200 http status code
 	// we must replace the error
 	defer func() {

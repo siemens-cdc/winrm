@@ -28,26 +28,32 @@ type Client struct {
 type Transporter interface {
 	// init request baset on the transport configurations
 	Post(*Client, *soap.SoapMessage) (string, error)
-	Transport(*Endpoint) error
+	Transport(*Endpoint, uint16, uint16, []uint16) error
 }
 
 // NewClient will create a new remote client on url, connecting with user and password
 // This function doesn't connect (connection happens only when CreateShell is called)
-func NewClient(endpoint *Endpoint, user, password string) (*Client, error) {
-	return NewClientWithParameters(endpoint, user, password, DefaultParameters, &ClientAuthRequest{dial: DefaultParameters.Dial})
+func NewClient(endpoint *Endpoint, user, password string,
+	minVersion uint16, maxVersion uint16, cipherSuites []uint16) (*Client, error) {
+	return NewClientWithParameters(endpoint, user, password, DefaultParameters, &ClientAuthRequest{dial: DefaultParameters.Dial},
+		minVersion, maxVersion, cipherSuites)
 }
 
-func NewClientWithoutAuth(endpoint *Endpoint, user, password string) (*Client, error) {
-	return NewClientWithParameters(endpoint, user, password, DefaultParameters, &clientRequest{dial: DefaultParameters.Dial})
+func NewClientWithoutAuth(endpoint *Endpoint, user, password string, minVersion uint16, maxVersion uint16, cipherSuites []uint16) (*Client, error) {
+	return NewClientWithParameters(endpoint, user, password, DefaultParameters, &clientRequest{dial: DefaultParameters.Dial},
+		minVersion, maxVersion, cipherSuites)
 }
 
-func NewWin11Client(endpoint *Endpoint, user, password string) (*Client, error) {
-	return NewClientWithParameters(endpoint, user, password, DefaultParameters, &ClientAuthRequestWin11{dial: DefaultParameters.Dial})
+func NewWin11Client(endpoint *Endpoint, user, password string,
+	minVersion uint16, maxVersion uint16, cipherSuites []uint16) (*Client, error) {
+	return NewClientWithParameters(endpoint, user, password, DefaultParameters, &ClientAuthRequestWin11{dial: DefaultParameters.Dial},
+		minVersion, maxVersion, cipherSuites)
 }
 
 // NewClientWithParameters will create a new remote client on url, connecting with user and password
 // This function doesn't connect (connection happens only when CreateShell is called)
-func NewClientWithParameters(endpoint *Endpoint, user, password string, params *Parameters, transporter Transporter) (*Client, error) {
+func NewClientWithParameters(endpoint *Endpoint, user, password string, params *Parameters, transporter Transporter,
+	minVersion uint16, maxVersion uint16, cipherSuites []uint16) (*Client, error) {
 	// alloc a new client
 	client := &Client{
 		Parameters: *params,
@@ -67,7 +73,7 @@ func NewClientWithParameters(endpoint *Endpoint, user, password string, params *
 	}
 
 	// set the transport to some endpoint configuration
-	if err := client.http.Transport(endpoint); err != nil {
+	if err := client.http.Transport(endpoint, minVersion, maxVersion, cipherSuites); err != nil {
 		return nil, fmt.Errorf("can't parse this key and certs: %w", err)
 	}
 
