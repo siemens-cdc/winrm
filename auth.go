@@ -21,6 +21,9 @@ type ClientAuthRequest struct {
 // Transport Transport
 func (c *ClientAuthRequest) Transport(endpoint *Endpoint, minVersion uint16, maxVersion uint16, cipherSuites []uint16) error {
 	cert, err := tls.X509KeyPair(endpoint.Cert, endpoint.Key)
+	cert.SupportedSignatureAlgorithms = []tls.SignatureScheme{tls.PKCS1WithSHA256, tls.PKCS1WithSHA384, tls.PKCS1WithSHA512,
+		tls.PSSWithSHA256, tls.PSSWithSHA384, tls.PSSWithSHA512, tls.ECDSAWithP256AndSHA256, tls.ECDSAWithP384AndSHA384,
+		tls.ECDSAWithP521AndSHA512, tls.Ed25519}
 	if err != nil {
 		return err
 	}
