@@ -13,12 +13,12 @@ import (
 	"github.com/siemens-cdc/winrm/soap"
 )
 
-var soapXML = "application/xml"
+var soapXML = "test/xml"
 
 // body func reads the response body and return it as a string
 func body(response *http.Response) (string, error) {
 	// if we received the content we expected
-	if strings.Contains(response.Header.Get("Content-Type"), "application/soap+xml") {
+	if strings.Contains(response.Header.Get("Content-Type"), "application/test+xml") {
 		body, err := io.ReadAll(response.Body)
 		defer func() {
 			// defer can modify the returned value before
