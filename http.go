@@ -13,7 +13,7 @@ import (
 	"github.com/siemens-cdc/winrm/soap"
 )
 
-var soapXML = "application/soap+xml"
+var soapXML = "application/xml"
 
 // body func reads the response body and return it as a string
 func body(response *http.Response) (string, error) {

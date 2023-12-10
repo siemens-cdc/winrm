@@ -71,7 +71,7 @@ func (c *ClientAuthRequest) Transport(endpoint *Endpoint, minVersion uint16, max
 // parse func reads the response body and return it as a string
 func parse(response *http.Response) (string, error) {
 	// if we received the content we expected
-	if strings.Contains(response.Header.Get("Content-Type"), "application/soap+xml") {
+	if strings.Contains(response.Header.Get("Content-Type"), "application/xml") {
 		body, err := io.ReadAll(response.Body)
 		defer func() {
 			// defer can modify the returned value before
